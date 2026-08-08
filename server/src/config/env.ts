@@ -7,10 +7,16 @@ dotenv.config();
  * Nothing outside this file should read from `process.env` directly —
  * that keeps configuration drift out of controllers/services.
  */
+const clientOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 export const env = {
   port: Number(process.env.PORT) || 5000,
   nodeEnv: process.env.NODE_ENV || 'development',
   clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+  clientOrigins,
 
   github: {
     token: process.env.GITHUB_TOKEN || '',

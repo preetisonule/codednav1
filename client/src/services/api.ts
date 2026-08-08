@@ -7,7 +7,7 @@ import { AnalysisResult, ApiErrorShape, GithubRepo, GithubUser } from '@/types';
  * these functions so base URL, timeouts, and error shape stay consistent.
  */
 const client = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
   timeout: 20_000,
 });
 

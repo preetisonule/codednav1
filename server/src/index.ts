@@ -11,7 +11,19 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 const app = express();
 
 app.use(helmet());
-app.use(cors({ origin: env.clientOrigin }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || env.clientOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(morgan(env.isProduction ? 'combined' : 'dev'));
 
@@ -36,7 +48,11 @@ app.use('/api/github', githubRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.listen(env.port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`CodeDNA API listening on http://localhost:${env.port}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(env.port, () => {
+    // eslint-disable-next-line no-console
+    console.log(`CodeDNA API listening on http://localhost:${env.port}`);
+  });
+}
+
+export default app;
