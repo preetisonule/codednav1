@@ -9,5 +9,12 @@
     "dev:client": "npm run dev --prefix client",
     "build:server": "npm run build --prefix server",
     "build:client": "npm run build --prefix client"
+  },
+  "dependencies": {
+    "multer": "^2.2.0",
+    "pdf-parser": "^1.0.5"
+  },
+  "devDependencies": {
+    "@types/multer": "^2.2.0"
   }
 }

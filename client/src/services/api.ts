@@ -1,44 +1,168 @@
-import axios from 'axios';
-import { AnalysisResult, ApiErrorShape, GithubRepo, GithubUser } from '@/types';
+import axios, {
+  AxiosError,
+  type AxiosInstance,
+} from "axios";
 
-/**
- * Single axios instance + typed API layer.
- * Components/hooks never call axios directly — everything goes through
- * these functions so base URL, timeouts, and error shape stay consistent.
- */
-const client = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
-  timeout: 20_000,
+import type { ReadinessResponse } from "../types/readiness";
+
+const api: AxiosInstance = axios.create({
+  baseURL: "http://localhost:5000",
+  headers: {
+    Accept: "application/json",
+  },
 });
+
+export interface ApiError {
+  status: number;
+  message: string;
+  code: string;
+}
 
 export class ApiRequestError extends Error {
   status: number;
   code: string;
 
-  constructor(shape: ApiErrorShape) {
-    super(shape.message);
-    this.status = shape.status;
-    this.code = shape.code;
+  constructor(error: ApiError) {
+    super(error.message);
+
+    this.name = "ApiRequestError";
+    this.status = error.status;
+    this.code = error.code;
   }
 }
 
-async function request<T>(promise: Promise<{ data: T }>): Promise<T> {
-  try {
-    const { data } = await promise;
-    return data;
-  } catch (err) {
-    if (axios.isAxiosError(err) && err.response?.data) {
-      throw new ApiRequestError(err.response.data as ApiErrorShape);
-    }
-    if (axios.isAxiosError(err) && err.code === 'ECONNABORTED') {
-      throw new ApiRequestError({ status: 504, message: 'Request timed out. Please try again.', code: 'TIMEOUT' });
-    }
-    throw new ApiRequestError({ status: 0, message: 'Network error — is the API server running?', code: 'NETWORK_ERROR' });
+function handleApiError(error: unknown): never {
+  if (error instanceof AxiosError) {
+    throw new ApiRequestError({
+      status: error.response?.status ?? 500,
+      message:
+        error.response?.data?.message ||
+        error.message ||
+        "Something went wrong",
+      code:
+        error.response?.data?.code ||
+        "API_ERROR",
+    });
   }
+
+  if (error instanceof Error) {
+    throw new ApiRequestError({
+      status: 500,
+      message: error.message,
+      code: "UNKNOWN",
+    });
+  }
+
+  throw new ApiRequestError({
+    status: 500,
+    message: "Something went wrong",
+    code: "UNKNOWN",
+  });
 }
+
+/*
+ * ============================================
+ * GitHub API
+ * ============================================
+ */
 
 export const githubApi = {
-  getProfile: (username: string) => request<GithubUser>(client.get(`/github/${username}/profile`)),
-  getRepos: (username: string) => request<GithubRepo[]>(client.get(`/github/${username}/repos`)),
-  analyze: (username: string) => request<AnalysisResult>(client.get(`/github/${username}/analyze`)),
+  async getProfile(username: string) {
+    try {
+      const response = await api.get(
+        `/api/github/profile/${username}`
+      );
+
+      return response.data;
+    } catch (error) {
+      return handleApiError(error);
+    }
+  },
+
+  async getRepos(username: string) {
+    try {
+      const response = await api.get(
+        `/api/github/repos/${username}`
+      );
+
+      return response.data;
+    } catch (error) {
+      return handleApiError(error);
+    }
+  },
+
+  async analyze(username: string) {
+    try {
+      const response = await api.get(
+        `/api/github/analyze/${username}`
+      );
+
+      return response.data;
+    } catch (error) {
+      return handleApiError(error);
+    }
+  },
 };
+
+/*
+ * ============================================
+ * Readiness API
+ * ============================================
+ */
+
+export async function getReadiness(data: {
+  githubUsername: string;
+  leetcodeUsername?: string;
+  targetRole?: string;
+  preparationDays?: number;
+  resume?: File;
+}): Promise<ReadinessResponse> {
+  try {
+    const formData = new FormData();
+
+    formData.append(
+      "githubUsername",
+      data.githubUsername
+    );
+
+    if (data.leetcodeUsername) {
+      formData.append(
+        "leetcodeUsername",
+        data.leetcodeUsername
+      );
+    }
+
+    if (data.targetRole) {
+      formData.append(
+        "targetRole",
+        data.targetRole
+      );
+    }
+
+    if (data.preparationDays) {
+      formData.append(
+        "preparationDays",
+        String(data.preparationDays)
+      );
+    }
+
+    if (data.resume) {
+      formData.append(
+        "resume",
+        data.resume
+      );
+    }
+
+    const response =
+      await api.post<ReadinessResponse>(
+        "/api/readiness/analyze",
+        formData
+      );
+
+    return response.data;
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+export default api;

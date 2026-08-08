@@ -97,3 +97,72 @@ export interface ApiError {
   message: string;
   code: string;
 }
+
+export interface ResumeSections {
+  education: boolean;
+  skills: boolean;
+  projects: boolean;
+  experience: boolean;
+  achievements: boolean;
+  certifications: boolean;
+}
+
+
+
+
+export interface LeetCodeAnalysis {
+  username: string;
+  available: boolean;
+  score: number;
+  stats: LeetCodeStats;
+  strengths: string[];
+  weaknesses: string[];
+}
+
+export interface ResumeAnalysis {
+  score: number;
+
+  skills: string[];
+
+  sections: {
+    education: boolean;
+    skills: boolean;
+    projects: boolean;
+    experience: boolean;
+    achievements: boolean;
+    certifications: boolean;
+  };
+
+  strengths: string[];
+
+  weaknesses: string[];
+}
+
+export interface LeetCodeStats {
+  totalSolved: number;
+  easySolved: number;
+  mediumSolved: number;
+  hardSolved: number;
+  acceptanceRate: number;
+  ranking: number | null;
+  contestRating: number | null;
+}
+
+export interface RoadmapTask {
+  title: string;
+  description: string;
+  estimatedHours: number;
+  category: string;
+}
+
+export interface RoadmapDay {
+  day: number;
+  focus: string;
+  tasks: RoadmapTask[];
+}
+
+export interface Roadmap {
+  targetRole: string;
+  totalDays: number;
+  days: RoadmapDay[];
+}

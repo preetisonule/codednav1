@@ -3,6 +3,9 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import resumeRoutes from "./routes/resume.routes";
+import readinessRoutes from "./routes/readiness.routes";
+import leetcodeRoutes from "./routes/leetcode.routes";
 
 import { env } from './config/env';
 import githubRoutes from './routes/github.routes';
@@ -44,7 +47,9 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/github', githubRoutes);
-
+app.use("/api/resume", resumeRoutes);
+app.use("/api/readiness", readinessRoutes);
+app.use("/api/leetcode", leetcodeRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
