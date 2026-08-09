@@ -53,7 +53,7 @@ export default function ReadinessForm({ onSuccess }: Props) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto max-w-2xl space-y-6 rounded-2xl border border-gray-800 bg-gray-900 p-8"
+      className="mx-auto w-full max-w-3xl space-y-7 rounded-2xl border border-gray-800 bg-slate-900 p-10 shadow-xl"
     >
       <div>
         <h2 className="text-2xl font-bold text-white">
