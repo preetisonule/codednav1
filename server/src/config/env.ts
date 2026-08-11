@@ -6,7 +6,7 @@ dotenv.config();
  * Centralized, typed access to environment configuration.
  */
 const clientOrigins = (
-  process.env.CLIENT_ORIGIN || "http://localhost:5173"
+  process.env.CLIENT_ORIGIN || "https://codednav1.onrender.com"
 )
   .split(",")
   .map((origin) => origin.trim())
@@ -22,7 +22,7 @@ export const env = {
   // Frontend URLs
   clientOrigin:
     process.env.CLIENT_ORIGIN ||
-    "http://localhost:5173",
+    "https://codednav1.onrender.com",
 
   clientOrigins,
 

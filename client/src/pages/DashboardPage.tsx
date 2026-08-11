@@ -56,7 +56,7 @@ export default function DashboardPage() {
       try {
         const response =
           await axios.get<RoadmapResponse>(
-            "http://localhost:5000/api/roadmap/current",
+            "https://codednav1.onrender.com/api/roadmap/current",
             {
               headers: {
                 Authorization: `Bearer ${token}`,
