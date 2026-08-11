@@ -1,39 +1,62 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 dotenv.config();
 
 /**
  * Centralized, typed access to environment configuration.
- * Nothing outside this file should read from `process.env` directly —
- * that keeps configuration drift out of controllers/services.
  */
-const clientOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
-  .split(',')
+const clientOrigins = (
+  process.env.CLIENT_ORIGIN || "http://localhost:5173"
+)
+  .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
 export const env = {
+  // Server
   port: Number(process.env.PORT) || 5000,
-  nodeEnv: process.env.NODE_ENV || 'development',
-  clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+
+  // Environment
+  nodeEnv: process.env.NODE_ENV || "development",
+
+  // Frontend URLs
+  clientOrigin:
+    process.env.CLIENT_ORIGIN ||
+    "http://localhost:5173",
+
   clientOrigins,
-  jwtSecret: process.env.JWT_SECRET || 'development-secret',
 
+  // Authentication
+  jwtSecret:
+    process.env.JWT_SECRET || "development-secret",
+
+  // Database
   mongodb: {
-    uri: process.env.MONGODB_URI || '',
+    uri: process.env.MONGODB_URI || "",
   },
 
+  // GitHub
   github: {
-    token: process.env.GITHUB_TOKEN || '',
-    baseUrl: 'https://api.github.com',
+    token: process.env.GITHUB_TOKEN || "",
+    baseUrl: "https://api.github.com",
   },
 
+  // AI
   ai: {
-    provider: (process.env.AI_PROVIDER || 'mock') as 'mock' | 'openai' | 'gemini' | 'claude',
-    openaiKey: process.env.OPENAI_API_KEY || '',
-    geminiKey: process.env.GEMINI_API_KEY || '',
-    anthropicKey: process.env.ANTHROPIC_API_KEY || '',
+    provider: (
+      process.env.AI_PROVIDER || "mock"
+    ) as "mock" | "openai" | "gemini" | "claude",
+
+    openaiKey:
+      process.env.OPENAI_API_KEY || "",
+
+    geminiKey:
+      process.env.GEMINI_API_KEY || "",
+
+    anthropicKey:
+      process.env.ANTHROPIC_API_KEY || "",
   },
 
-  isProduction: process.env.NODE_ENV === 'production',
+  isProduction:
+    process.env.NODE_ENV === "production",
 };
