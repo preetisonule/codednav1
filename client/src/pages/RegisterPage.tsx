@@ -16,9 +16,7 @@ export default function RegisterPage({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>
-  ) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     // Clear previous errors
@@ -37,8 +35,7 @@ export default function RegisterPage({
     // Email validation
     // -------------------------
 
-    const emailRegex =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email.trim())) {
       setError("Please enter a valid email address.");
@@ -61,36 +58,27 @@ export default function RegisterPage({
       const registerResponse = await register(
         name.trim(),
         email.trim(),
-        password
+        password,
       );
 
-      if (!registerResponse || registerResponse.error) {
-        setError(
-          registerResponse?.message ||
-            "Registration failed. Please try again."
-        );
+      if (!registerResponse) {
+        setError("Registration failed. Please try again.");
         return;
       }
 
       // Step 2: Auto-login
-      const loginResponse = await login(
-        email.trim(),
-        password
-      );
+      const loginResponse = await login(email.trim(), password);
 
       if (!loginResponse.token) {
         setError(
           loginResponse?.message ||
-            "Account created but auto-login failed. Please login manually."
+            "Account created but auto-login failed. Please login manually.",
         );
         return;
       }
 
       // Step 3: Store token
-      localStorage.setItem(
-        "accessToken",
-        loginResponse.token
-      );
+      localStorage.setItem("accessToken", loginResponse.token);
 
       // Notify parent
       onRegisterSuccess(loginResponse.token);
@@ -103,15 +91,13 @@ export default function RegisterPage({
           error.message.includes("already exists")
         ) {
           setError(
-            "An account with this email already exists. Please login instead."
+            "An account with this email already exists. Please login instead.",
           );
         } else {
           setError(error.message);
         }
       } else {
-        setError(
-          "Registration failed. Please try again."
-        );
+        setError("Registration failed. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -121,12 +107,9 @@ export default function RegisterPage({
   return (
     <main className="flex min-h-screen items-center justify-center bg-black px-6">
       <div className="w-full max-w-md">
-
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-white">
-            Create account
-          </h1>
+          <h1 className="text-4xl font-bold text-white">Create account</h1>
 
           <p className="mt-2 text-gray-400">
             Join CodeDNA and start tracking your growth
@@ -138,7 +121,6 @@ export default function RegisterPage({
           onSubmit={handleSubmit}
           className="space-y-5 rounded-2xl border border-gray-800 bg-gray-950 p-8"
         >
-
           {/* Name */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-300">
@@ -148,9 +130,7 @@ export default function RegisterPage({
             <input
               type="text"
               value={name}
-              onChange={(e) =>
-                setName(e.target.value)
-              }
+              onChange={(e) => setName(e.target.value)}
               placeholder="Jane Doe"
               className="w-full rounded-lg border border-gray-700 bg-black px-4 py-3 text-white outline-none focus:border-blue-500"
               disabled={loading}
@@ -166,9 +146,7 @@ export default function RegisterPage({
             <input
               type="email"
               value={email}
-              onChange={(e) =>
-                setEmail(e.target.value)
-              }
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               className="w-full rounded-lg border border-gray-700 bg-black px-4 py-3 text-white outline-none focus:border-blue-500"
               disabled={loading}
@@ -188,9 +166,7 @@ export default function RegisterPage({
             <input
               type="password"
               value={password}
-              onChange={(e) =>
-                setPassword(e.target.value)
-              }
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               className="w-full rounded-lg border border-gray-700 bg-black px-4 py-3 text-white outline-none focus:border-blue-500"
               disabled={loading}
@@ -214,15 +190,12 @@ export default function RegisterPage({
             disabled={loading}
             className="w-full rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading
-              ? "Creating account..."
-              : "Create account"}
+            {loading ? "Creating account..." : "Create account"}
           </button>
 
           {/* Login */}
           <p className="text-center text-sm text-gray-400">
             Already have an account?{" "}
-
             <button
               type="button"
               onClick={onSwitchToLogin}
@@ -232,7 +205,6 @@ export default function RegisterPage({
               Login
             </button>
           </p>
-
         </form>
       </div>
     </main>

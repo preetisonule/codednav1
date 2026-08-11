@@ -2,8 +2,6 @@ import ReadinessScore from "../components/readiness/ReadinessScore";
 import CategoryScores from "../components/readiness/CategoryScores";
 import SkillGaps from "../components/readiness/SkillGaps";
 import Roadmap from "../components/readiness/Roadmap";
-import ParticleText from "../components/readiness/ParticleText";
-import GradientWaves from "../components/readiness/GradientWaves";
 import type { ReadinessResponse } from "../types/readiness";
 
 interface Props {
