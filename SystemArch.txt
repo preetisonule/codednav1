@@ -1,0 +1,72 @@
+                    ┌───────────────┐
+                    │   Landing     │
+                    │     Page      │
+                    └───────┬───────┘
+                            │
+                    Login / Register
+                            │
+                            ▼
+                    ┌───────────────┐
+                    │   Dashboard   │
+                    └───────┬───────┘
+                            │
+                    "Analyze Profile"
+                            │
+                            ▼
+              ┌──────────────────────────┐
+              │      Analysis Form       │
+              │                          │
+              │ GitHub username          │
+              │ LeetCode username        │
+              │ Target role              │
+              │ Preparation days         │
+              │ Resume                   │
+              └────────────┬─────────────┘
+                           │
+                           ▼
+                 ┌──────────────────┐
+                 │ CodeDNA Analysis  │
+                 └────────┬─────────┘
+                          │
+        ┌─────────────────┼──────────────────┐
+        ▼                 ▼                  ▼
+     GitHub           LeetCode            Resume
+        │                 │                  │
+        └─────────────────┼──────────────────┘
+                          ▼
+                  Readiness Score
+                          │
+                          ▼
+                     Skill Gaps
+                          │
+                          ▼
+                     N-Day Roadmap
+                          │
+                          ▼
+              ┌───────────────────────┐
+              │  Import this roadmap? │
+              │                       │
+              │   [ Import Plan ]     │
+              │   [ Not Now ]         │
+              └───────────┬───────────┘
+                          │
+                    Import Plan
+                          │
+                          ▼
+                   ┌─────────────┐
+                   │  Dashboard  │
+                   └──────┬──────┘
+                          │
+          ┌───────────────┼────────────────┐
+          ▼               ▼                ▼
+     Today's Task     Progress         Roadmap
+          │               │                │
+          └───────────────┼────────────────┘
+                          │
+                          ▼
+                     Profile Page
+                          │
+              ┌───────────┼───────────┐
+              ▼           ▼           ▼
+           GitHub      LeetCode     Resume
+           Analysis    Analysis     Analysis
