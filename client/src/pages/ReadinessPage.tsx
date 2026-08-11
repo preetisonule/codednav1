@@ -14,8 +14,6 @@ export default function ReadinessPage({ data }: Props) {
       <div className="mx-auto max-w-7xl space-y-8">
 
         <div>
-          <ParticleText/>
-
           <h1 className="mt-2 text-4xl font-bold text-white">
             Interview Readiness
           </h1>
