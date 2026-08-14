@@ -9,7 +9,7 @@ import type {
 } from "../types/readiness";
 
 const api: AxiosInstance = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "hhttps://codednav1.onrender.com",
   headers: {
     Accept: "application/json",
   },

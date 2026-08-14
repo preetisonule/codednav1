@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
 import { analysisApi } from "../services/api";
-import type { ReadinessResponse, SkillGap } from "../types/readiness"; // Import your exact types
-import { 
-  User, 
-  Mail, 
-  Calendar, 
+import type { ReadinessResponse } from "../types/readiness"; // Import your exact types
+import {  
   CheckCircle, 
   XCircle, 
   TrendingUp, 
@@ -83,7 +80,7 @@ const {
   readiness,
   skillGaps,
   github,
-  _id,
+  // _id,
 } = analysis;
 
   // Calculate overall score from the readiness object
