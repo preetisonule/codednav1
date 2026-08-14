@@ -22,7 +22,7 @@ export const env = {
   // Frontend URLs
   clientOrigin:
     process.env.CLIENT_ORIGIN ||
-    "https://codednav1.onrender.com",
+    "http://localhost:5000",
 
   clientOrigins,
 

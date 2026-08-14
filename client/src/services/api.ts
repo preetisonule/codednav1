@@ -3,18 +3,46 @@ import axios, {
   type AxiosInstance,
 } from "axios";
 
-import type { ReadinessResponse } from "../types/readiness";
+import type {
+  ReadinessResponse,
+  AnalysisResponse,
+} from "../types/readiness";
 
 const api: AxiosInstance = axios.create({
-  baseURL: "https://codednav1.onrender.com",
+  baseURL: "http://localhost:5000",
   headers: {
     Accept: "application/json",
   },
 });
 
+// ============================================
+// AUTH TOKEN INTERCEPTOR
+// ============================================
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("accessToken");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// ============================================
+// TYPES
+// ============================================
+
 export interface AuthResponse {
   message: string;
+
   token?: string;
+
   user?: {
     id: string;
     name: string;
@@ -31,6 +59,10 @@ export interface RoadmapProgressResponse {
   progressPercentage: number;
   currentDay: number;
 }
+
+// ============================================
+// ERROR HANDLING
+// ============================================
 
 export interface ApiError {
   status: number;
@@ -80,11 +112,27 @@ function handleApiError(error: unknown): never {
   });
 }
 
-/*
- * ============================================
- * GitHub API
- * ============================================
- */
+// ============================================
+// ANALYSIS API
+// ============================================
+
+export const analysisApi = {
+  async getById(analysisId: string) {
+    try {
+      const response = await api.get<AnalysisResponse>(
+        `/api/analysis/${analysisId}`
+      );
+
+      return response.data.analysis;
+    } catch (error) {
+      return handleApiError(error);
+    }
+  },
+};
+
+// ============================================
+// GITHUB API
+// ============================================
 
 export const githubApi = {
   async getProfile(username: string) {
@@ -124,11 +172,9 @@ export const githubApi = {
   },
 };
 
-/*
- * ============================================
- * Readiness API
- * ============================================
- */
+// ============================================
+// AUTH API
+// ============================================
 
 export async function login(
   email: string,
@@ -137,7 +183,10 @@ export async function login(
   try {
     const response = await api.post<AuthResponse>(
       "/api/auth/login",
-      { email, password }
+      {
+        email,
+        password,
+      }
     );
 
     return response.data;
@@ -154,7 +203,11 @@ export async function register(
   try {
     const response = await api.post<AuthResponse>(
       "/api/auth/register",
-      { name, email, password }
+      {
+        name,
+        email,
+        password,
+      }
     );
 
     return response.data;
@@ -163,19 +216,17 @@ export async function register(
   }
 }
 
+// ============================================
+// ROADMAP API
+// ============================================
+
 export const roadmapApi = {
   async getProgress(analysisId: string) {
     try {
-      const token = localStorage.getItem("accessToken");
-
-      const response = await api.get<RoadmapProgressResponse>(
-        `/api/roadmap/${analysisId}/progress`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response =
+        await api.get<RoadmapProgressResponse>(
+          `/api/roadmap/${analysisId}/progress`
+        );
 
       return response.data;
     } catch (error) {
@@ -189,17 +240,11 @@ export const roadmapApi = {
     completed = true
   ) {
     try {
-      const token = localStorage.getItem("accessToken");
-
-      const response = await api.patch<RoadmapProgressResponse>(
-        `/api/roadmap/${analysisId}/day/${dayNumber}`,
-        { completed },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response =
+        await api.patch<RoadmapProgressResponse>(
+          `/api/roadmap/${analysisId}/day/${dayNumber}`,
+          { completed }
+        );
 
       return response.data;
     } catch (error) {
@@ -214,17 +259,11 @@ export const roadmapApi = {
     completed: boolean
   ) {
     try {
-      const token = localStorage.getItem("accessToken");
-
-      const response = await api.patch<RoadmapProgressResponse>(
-        `/api/roadmap/${analysisId}/day/${dayNumber}/task/${taskIndex}`,
-        { completed },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response =
+        await api.patch<RoadmapProgressResponse>(
+          `/api/roadmap/${analysisId}/day/${dayNumber}/task/${taskIndex}`,
+          { completed }
+        );
 
       return response.data;
     } catch (error) {
@@ -233,13 +272,17 @@ export const roadmapApi = {
   },
 };
 
+// ============================================
+// READINESS API
+// ============================================
+
 export async function getReadiness(data: {
   githubUsername: string;
   leetcodeUsername?: string;
   targetRole?: string;
   preparationDays?: number;
   resume?: File;
-}): Promise<ReadinessResponse> {
+}): Promise<ReadinessResponse & { _id: string }> {
   try {
     const formData = new FormData();
 
@@ -277,12 +320,12 @@ export async function getReadiness(data: {
     }
 
     const response =
-      await api.post<ReadinessResponse>(
+      await api.post<AnalysisResponse>(
         "/api/readiness/analyze",
         formData
       );
 
-    return response.data;
+    return response.data.analysis;
   } catch (error) {
     return handleApiError(error);
   }

@@ -159,9 +159,9 @@ type GradientWavesCtx = {
 const ctxMap = new WeakMap<HTMLDivElement, GradientWavesCtx>();
 
 const GradientWaves: React.FC<GradientWavesProps> = ({
-  horizonColor = '#5227FF',
-  waveColor = '#FF9FFC',
-  crestColor = '#FFFFFF',
+  horizonColor="#1B4EF5",
+  waveColor="#608bed",
+  crestColor="#FFFFFF",
   speed = 0.4,
   amplitude = 2.5,
   waveScale = 0.6,

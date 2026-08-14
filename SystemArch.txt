@@ -70,3 +70,14 @@
               ▼           ▼           ▼
            GitHub      LeetCode     Resume
            Analysis    Analysis     Analysis
+
+
+user register -> store to admin dashboard
+user login -> if analyzed -> show Analysis and profile(pfp, username, email, (leetcode, github, resume)=> edit and save)
+                             On dashboard => Nav: logo, about, pfp, 
+                                             Hero: score, Analyze again
+                                             rest: cards of 30 days checked or unchecked.
+              else: Analyze
+admin dashbaord: username and score
+
+https://codednav1.onrender.com

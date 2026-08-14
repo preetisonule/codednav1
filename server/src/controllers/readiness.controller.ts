@@ -13,13 +13,16 @@ import {
 
 import { calculateInterviewReadiness } from "../utils/readinessScore";
 
+// 🟢 IMPORT YOUR MONGOOSE MODEL
+import Analysis from "../models/Analysis"; 
+
 export async function getReadiness(
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
-    const { githubUsername } = req.body;
+    const { githubUsername, userId } = req.body; // We need userId to link it to a user
 
     /*
      * ============================================
@@ -127,40 +130,52 @@ export async function getReadiness(
       resume,
       leetcode
     );
+    
     const preparationDays =
-  typeof req.body.days === "number"
-    ? Math.max(7, Math.min(req.body.days, 90))
-    : 30;
+      typeof req.body.days === "number"
+        ? Math.max(7, Math.min(req.body.days, 90))
+        : 30;
 
     const roadmap = generateRoadmap(
-  targetRole as TargetRole,
-  preparationDays,
-  skillGaps
-);
+      targetRole as TargetRole,
+      preparationDays,
+      skillGaps
+    );
 
     /*
      * ============================================
-     * 9. Return complete CodeDNA analysis
+     * 9. 🟢 SAVE TO DATABASE
      * ============================================
      */
 
-    res.json({
-  targetRole,
+    // Create the new Analysis document
+    const newAnalysis = new Analysis({
+      userId: userId || "67ec0c7628b960c2e2350277", // ⚠️ Temporary fallback if userId is missing
+      targetRole,
+      preparationDays,
+      readiness,
+      skillGaps,
+      roadmap,
+      github,
+      resume,
+      leetcode,
+    });
 
-  preparationDays,
+    // Save it to MongoDB
+    await newAnalysis.save();
 
-  readiness,
+    /*
+     * ============================================
+     * 10. Return complete CodeDNA analysis WITH _id
+     * ============================================
+     */
 
-  skillGaps,
+    // 🟢 Wrap the result in an 'analysis' object so the frontend can find the _id!
+    res.status(201).json({
+      message: "Analysis completed successfully",
+      analysis: newAnalysis, 
+    });
 
-  roadmap,
-
-  github,
-
-  resume,
-
-  leetcode,
-});
   } catch (err) {
     next(err);
   }

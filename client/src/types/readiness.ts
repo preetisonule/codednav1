@@ -174,8 +174,9 @@ export interface LeetCodeAnalysis {
  */
 
 export interface ReadinessResponse {
-  targetRole: TargetRole;
+  _id: string;
 
+  targetRole: TargetRole;
   preparationDays: number;
 
   readiness: ReadinessResult;
@@ -185,8 +186,11 @@ export interface ReadinessResponse {
   roadmap: Roadmap;
 
   github: GithubAnalysis | null;
-
   resume: ResumeAnalysis | null;
-
   leetcode: LeetCodeAnalysis | null;
+}
+
+export interface AnalysisResponse {
+  message: string;
+  analysis: ReadinessResponse;
 }

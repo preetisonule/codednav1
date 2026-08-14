@@ -10,6 +10,7 @@ import leetcodeRoutes from "./routes/leetcode.routes";
 import authRoutes from "./routes/auth.routes";
 import roadmapRoutes from "./routes/roadmap.routes";
 import githubRoutes from "./routes/github.routes";
+import analysisRoutes from "./routes/analysis.routes";
 
 import { env } from "./config/env";
 import { connectDatabase } from "./config/database";
@@ -69,6 +70,7 @@ app.use("/api/resume", resumeRoutes);
 app.use("/api/readiness", readinessRoutes);
 app.use("/api/leetcode", leetcodeRoutes);
 app.use("/api/roadmap", roadmapRoutes);
+app.use("/api/analysis", analysisRoutes);
 
 // Error handling
 app.use(notFoundHandler);

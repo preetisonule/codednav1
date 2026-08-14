@@ -13,7 +13,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://codednav1.onrender.com',
+        target: 'http://localhost:5000', // 🔥 CHANGE THIS to your local backend port!
         changeOrigin: true,
       },
     },

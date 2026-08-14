@@ -1,17 +1,24 @@
 import { useEffect, useState } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
 import ReadinessForm from "./components/readiness/ReadinessForm";
+import ProfilePage from "./pages/ProfilePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ReadinessPage from "./pages/ReadinessPage";
 import GradientWaves from "./components/readiness/GradientWaves";
-
-import type { ReadinessResponse } from "./types/readiness";
 import ParticleText from "./components/readiness/ParticleText";
+import Navbar from "./components/Navbar/Navbar";
+
+import { analysisApi } from "./services/api";
+import type { ReadinessResponse } from "./types/readiness";
 
 function App() {
   const [analysis, setAnalysis] =
     useState<ReadinessResponse | null>(null);
+
+  const [isLoadingAnalysis, setIsLoadingAnalysis] =
+    useState(true);
 
   const [authMode, setAuthMode] =
     useState<"login" | "register">("login");
@@ -21,122 +28,306 @@ function App() {
       return Boolean(localStorage.getItem("accessToken"));
     });
 
-  // Check authentication status
+    const navigate = useNavigate();
+
+  // ============================================
+  // AUTHENTICATION
+  // ============================================
+
   useEffect(() => {
-    setIsAuthenticated(
-      Boolean(localStorage.getItem("accessToken"))
-    );
+    const token = localStorage.getItem("accessToken");
+
+    setIsAuthenticated(Boolean(token));
   }, []);
 
-  // Called after successful login/register
+  // ============================================
+  // LOAD LAST ANALYSIS
+  // ============================================
+
+  useEffect(() => {
+    const loadLastAnalysis = async () => {
+      if (!isAuthenticated) {
+        setIsLoadingAnalysis(false);
+        return;
+      }
+
+      const analysisId =
+        localStorage.getItem("lastAnalysisId");
+
+      if (!analysisId) {
+        setIsLoadingAnalysis(false);
+        return;
+      }
+
+      try {
+        console.log(
+          "🔄 Loading last analysis:",
+          analysisId
+        );
+
+        const data =
+          await analysisApi.getById(analysisId);
+
+        setAnalysis(data);
+
+        console.log(
+          "✅ Analysis loaded:",
+          data
+        );
+      } catch (error) {
+        console.error(
+          "❌ Failed to load analysis:",
+          error
+        );
+
+        // If the analysis no longer exists,
+        // remove the stale ID.
+        localStorage.removeItem("lastAnalysisId");
+
+        setAnalysis(null);
+      } finally {
+        setIsLoadingAnalysis(false);
+      }
+    };
+
+    loadLastAnalysis();
+  }, [isAuthenticated]);
+
+  // ============================================
+  // AUTH SUCCESS
+  // ============================================
+
   const handleAuthSuccess = () => {
     setIsAuthenticated(true);
     setAuthMode("login");
   };
 
-  // Logout
+  // ============================================
+  // LOGOUT
+  // ============================================
+
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("lastAnalysisId");
 
     setIsAuthenticated(false);
-
-    // Reset analysis data
     setAnalysis(null);
   };
 
-  // Called after readiness analysis is completed
+  // ============================================
+  // ANALYSIS COMPLETE
+  // ============================================
+
   const handleAnalysisComplete = (
-    data: ReadinessResponse
-  ) => {
-    setAnalysis(data);
-  };
+  data: ReadinessResponse
+) => {
+  setAnalysis(data);
 
-  // =========================
-  // NOT AUTHENTICATED
-  // =========================
+  if (data._id) {
+    localStorage.setItem(
+      "lastAnalysisId",
+      data._id
+    );
 
-  if (!isAuthenticated) {
-    if (authMode === "register") {
-      return (
-        <RegisterPage
-          onRegisterSuccess={handleAuthSuccess}
-          onSwitchToLogin={() => setAuthMode("login")}
-        />
-      );
-    }
-
-    return (
-      <LoginPage
-        onLoginSuccess={handleAuthSuccess}
-        onSwitchToRegister={() =>
-          setAuthMode("register")
-        }
-      />
+    console.log(
+      "✅ Saved Analysis ID:",
+      data._id
+    );
+  } else {
+    console.warn(
+      "⚠️ No _id found in analysis data:",
+      data
     );
   }
 
-  // =========================
-  // ANALYSIS RESULT PAGE
-  // =========================
+  // Go to dashboard after successful analysis
+  navigate("/dashboard");
+};
 
-  if (analysis) {
+  // ============================================
+  // LOADING
+  // ============================================
+
+  if (isAuthenticated && isLoadingAnalysis) {
     return (
-      <main className="relative min-h-screen overflow-hidden bg-black">
-        {/* Background */}
-        <div className="fixed inset-0 z-0">
-          <GradientWaves />
+      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-gray-700 border-t-white" />
+
+          <p className="text-sm text-gray-400">
+            Loading your analysis...
+          </p>
         </div>
-
-        {/* Dark overlay */}
-        <div className="fixed inset-0 z-0 bg-black/40" />
-        <ParticleText/>
-
-        {/* Analysis content */}
-        <div className="relative z-10 min-h-screen px-6 py-16">
-          <ReadinessPage data={analysis} />
-        </div>
-
-        {/* Logout button */}
-        <button
-          onClick={handleLogout}
-          className="fixed right-4 top-4 z-50 rounded-lg bg-red-600 px-4 py-2 text-white transition hover:bg-red-500"
-        >
-          Logout
-        </button>
-      </main>
+      </div>
     );
   }
 
-  // =========================
-  // READINESS FORM PAGE
-  // =========================
+  // ============================================
+  // RENDER
+  // ============================================
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-black">
-      {/* Background */}
-      <div className="fixed inset-0 z-0">
-        <GradientWaves />
-      </div>
-
-      {/* Dark overlay */}
-      <div className="fixed inset-0 z-0 bg-black/40" />
-      <ParticleText/>
-      {/* Form content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center px-6 py-16">
-        <ReadinessForm
-          onSuccess={handleAnalysisComplete}
+  <>
+    {!isAuthenticated ? (
+      // ========================================
+      // AUTH ROUTES
+      // ========================================
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            <LoginPage
+              onLoginSuccess={handleAuthSuccess}
+              onSwitchToRegister={() =>
+                setAuthMode("register")
+              }
+            />
+          }
         />
-      </div>
 
-      {/* Logout button */}
-      <button
-        onClick={handleLogout}
-        className="fixed right-4 top-4 z-50 rounded-lg bg-red-600 px-4 py-2 text-white transition hover:bg-red-500"
-      >
-        Logout
-      </button>
-    </main>
-  );
+        <Route
+          path="/register"
+          element={
+            <RegisterPage
+              onRegisterSuccess={handleAuthSuccess}
+              onSwitchToLogin={() =>
+                setAuthMode("login")
+              }
+            />
+          }
+        />
+
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to={
+                authMode === "register"
+                  ? "/register"
+                  : "/login"
+              }
+              replace
+            />
+          }
+        />
+      </Routes>
+    ) : (
+      // ========================================
+      // AUTHENTICATED APP
+      // ========================================
+      <>
+        <Navbar onLogout={handleLogout} />
+
+        <main className="relative min-h-screen overflow-hidden bg-black pt-20">
+          
+          {/* ==============================
+              BACKGROUND
+          ============================== */}
+
+          <div className="fixed inset-0 z-0">
+            <GradientWaves />
+          </div>
+
+          <div className="fixed inset-0 z-0 bg-black/40" />
+
+          <ParticleText />
+
+          {/* ==============================
+              CONTENT
+          ============================== */}
+
+          <div className="relative z-10 flex min-h-screen justify-center px-6 py-10">
+            <Routes>
+
+              {/* ==============================
+                  DASHBOARD
+                  Existing analysis
+              ============================== */}
+
+              <Route
+                path="/dashboard"
+                element={
+                  analysis ? (
+                    <ReadinessPage
+                      data={analysis}
+                    />
+                  ) : (
+                    <Navigate
+                      to="/analyze"
+                      replace
+                    />
+                  )
+                }
+              />
+
+              {/* ==============================
+                  ANALYZE
+                  ALWAYS SHOW FORM
+                  This is "Analyze Again"
+              ============================== */}
+
+              <Route
+                path="/analyze"
+                element={
+                  <ReadinessForm
+                    onSuccess={
+                      handleAnalysisComplete
+                    }
+                  />
+                }
+              />
+
+              {/* ==============================
+                  PROFILE
+              ============================== */}
+
+              <Route
+                path="/profile"
+                element={<ProfilePage />}
+              />
+
+              {/* ==============================
+                  ROOT
+              ============================== */}
+
+              <Route
+                path="/"
+                element={
+                  <Navigate
+                    to={
+                      analysis
+                        ? "/dashboard"
+                        : "/analyze"
+                    }
+                    replace
+                  />
+                }
+              />
+
+              {/* ==============================
+                  FALLBACK
+              ============================== */}
+
+              <Route
+                path="*"
+                element={
+                  <Navigate
+                    to={
+                      analysis
+                        ? "/dashboard"
+                        : "/analyze"
+                    }
+                    replace
+                  />
+                }
+              />
+
+            </Routes>
+          </div>
+        </main>
+      </>
+    )}
+  </>
+);
 }
-
 export default App;

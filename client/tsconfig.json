@@ -14,9 +14,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
+    
+    "rootDirs": ["./src"],              // <-- Replaces baseUrl
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]                // <-- Updated path relative to root
     }
   },
   "include": ["src"]
