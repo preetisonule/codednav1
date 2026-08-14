@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
 
 import ReadinessForm from "./components/readiness/ReadinessForm";
 import ProfilePage from "./pages/ProfilePage";
@@ -20,22 +25,22 @@ function App() {
   const [isLoadingAnalysis, setIsLoadingAnalysis] =
     useState(true);
 
-  const [authMode, setAuthMode] =
-    useState<"login" | "register">("login");
-
   const [isAuthenticated, setIsAuthenticated] =
     useState<boolean>(() => {
-      return Boolean(localStorage.getItem("accessToken"));
+      return Boolean(
+        localStorage.getItem("accessToken")
+      );
     });
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // ============================================
   // AUTHENTICATION
   // ============================================
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const token =
+      localStorage.getItem("accessToken");
 
     setIsAuthenticated(Boolean(token));
   }, []);
@@ -80,9 +85,9 @@ function App() {
           error
         );
 
-        // If the analysis no longer exists,
-        // remove the stale ID.
-        localStorage.removeItem("lastAnalysisId");
+        localStorage.removeItem(
+          "lastAnalysisId"
+        );
 
         setAnalysis(null);
       } finally {
@@ -99,7 +104,21 @@ function App() {
 
   const handleAuthSuccess = () => {
     setIsAuthenticated(true);
-    setAuthMode("login");
+
+    // After login/register, go to the correct page.
+    const hasAnalysis =
+      Boolean(
+        localStorage.getItem(
+          "lastAnalysisId"
+        )
+      );
+
+    navigate(
+      hasAnalysis
+        ? "/dashboard"
+        : "/analyze",
+      { replace: true }
+    );
   };
 
   // ============================================
@@ -112,6 +131,10 @@ function App() {
 
     setIsAuthenticated(false);
     setAnalysis(null);
+
+    navigate("/login", {
+      replace: true,
+    });
   };
 
   // ============================================
@@ -119,36 +142,41 @@ function App() {
   // ============================================
 
   const handleAnalysisComplete = (
-  data: ReadinessResponse
-) => {
-  setAnalysis(data);
+    data: ReadinessResponse
+  ) => {
+    setAnalysis(data);
 
-  if (data._id) {
-    localStorage.setItem(
-      "lastAnalysisId",
-      data._id
-    );
+    if (data._id) {
+      localStorage.setItem(
+        "lastAnalysisId",
+        data._id
+      );
 
-    console.log(
-      "✅ Saved Analysis ID:",
-      data._id
-    );
-  } else {
-    console.warn(
-      "⚠️ No _id found in analysis data:",
-      data
-    );
-  }
+      console.log(
+        "✅ Saved Analysis ID:",
+        data._id
+      );
+    } else {
+      console.warn(
+        "⚠️ No _id found in analysis data:",
+        data
+      );
+    }
 
-  // Go to dashboard after successful analysis
-  navigate("/dashboard");
-};
+    // New analysis → Dashboard
+    navigate("/dashboard", {
+      replace: true,
+    });
+  };
 
   // ============================================
   // LOADING
   // ============================================
 
-  if (isAuthenticated && isLoadingAnalysis) {
+  if (
+    isAuthenticated &&
+    isLoadingAnalysis
+  ) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
         <div className="text-center">
@@ -167,167 +195,172 @@ function App() {
   // ============================================
 
   return (
-  <>
-    {!isAuthenticated ? (
-      // ========================================
-      // AUTH ROUTES
-      // ========================================
-      <Routes>
-        <Route
-          path="/login"
-          element={
-            <LoginPage
-              onLoginSuccess={handleAuthSuccess}
-              onSwitchToRegister={() =>
-                setAuthMode("register")
-              }
-            />
-          }
-        />
+    <>
+      {!isAuthenticated ? (
+        // ========================================
+        // AUTH ROUTES
+        // ========================================
+        <Routes>
+          {/* LOGIN */}
+          <Route
+            path="/login"
+            element={
+              <LoginPage
+                onLoginSuccess={
+                  handleAuthSuccess
+                }
+                onSwitchToRegister={() =>
+                  navigate("/register")
+                }
+              />
+            }
+          />
 
-        <Route
-          path="/register"
-          element={
-            <RegisterPage
-              onRegisterSuccess={handleAuthSuccess}
-              onSwitchToLogin={() =>
-                setAuthMode("login")
-              }
-            />
-          }
-        />
+          {/* REGISTER */}
+          <Route
+            path="/register"
+            element={
+              <RegisterPage
+                onRegisterSuccess={
+                  handleAuthSuccess
+                }
+                onSwitchToLogin={() =>
+                  navigate("/login")
+                }
+              />
+            }
+          />
 
-        <Route
-          path="*"
-          element={
-            <Navigate
-              to={
-                authMode === "register"
-                  ? "/register"
-                  : "/login"
-              }
-              replace
-            />
-          }
-        />
-      </Routes>
-    ) : (
-      // ========================================
-      // AUTHENTICATED APP
-      // ========================================
-      <>
-        <Navbar onLogout={handleLogout} />
+          {/* UNKNOWN AUTH ROUTE */}
+          <Route
+            path="*"
+            element={
+              <Navigate
+                to="/login"
+                replace
+              />
+            }
+          />
+        </Routes>
+      ) : (
+        // ========================================
+        // AUTHENTICATED APP
+        // ========================================
+        <>
+          <Navbar
+            onLogout={handleLogout}
+          />
 
-        <main className="relative min-h-screen overflow-hidden bg-black pt-20">
-          
-          {/* ==============================
-              BACKGROUND
-          ============================== */}
+          <main className="relative min-h-screen overflow-hidden bg-black pt-20">
+            {/* ==============================
+                BACKGROUND
+            ============================== */}
 
-          <div className="fixed inset-0 z-0">
-            <GradientWaves />
-          </div>
+            <div className="fixed inset-0 z-0">
+              <GradientWaves />
+            </div>
 
-          <div className="fixed inset-0 z-0 bg-black/40" />
+            <div className="fixed inset-0 z-0 bg-black/40" />
 
-          <ParticleText />
+            <ParticleText />
 
-          {/* ==============================
-              CONTENT
-          ============================== */}
+            {/* ==============================
+                CONTENT
+            ============================== */}
 
-          <div className="relative z-10 flex min-h-screen justify-center px-6 py-10">
-            <Routes>
+            <div className="relative z-10 flex min-h-screen justify-center px-6 py-10">
+              <Routes>
 
-              {/* ==============================
-                  DASHBOARD
-                  Existing analysis
-              ============================== */}
+                {/* ==============================
+                    DASHBOARD
+                ============================== */}
 
-              <Route
-                path="/dashboard"
-                element={
-                  analysis ? (
-                    <ReadinessPage
-                      data={analysis}
+                <Route
+                  path="/dashboard"
+                  element={
+                    analysis ? (
+                      <ReadinessPage
+                        data={analysis}
+                      />
+                    ) : (
+                      <Navigate
+                        to="/analyze"
+                        replace
+                      />
+                    )
+                  }
+                />
+
+                {/* ==============================
+                    ANALYZE
+                    Always shows the form
+                ============================== */}
+
+                <Route
+                  path="/analyze"
+                  element={
+                    <ReadinessForm
+                      onSuccess={
+                        handleAnalysisComplete
+                      }
                     />
-                  ) : (
+                  }
+                />
+
+                {/* ==============================
+                    PROFILE
+                ============================== */}
+
+                <Route
+                  path="/profile"
+                  element={
+                    <ProfilePage />
+                  }
+                />
+
+                {/* ==============================
+                    ROOT
+                ============================== */}
+
+                <Route
+                  path="/"
+                  element={
                     <Navigate
-                      to="/analyze"
+                      to={
+                        analysis
+                          ? "/dashboard"
+                          : "/analyze"
+                      }
                       replace
                     />
-                  )
-                }
-              />
+                  }
+                />
 
-              {/* ==============================
-                  ANALYZE
-                  ALWAYS SHOW FORM
-                  This is "Analyze Again"
-              ============================== */}
+                {/* ==============================
+                    FALLBACK
+                ============================== */}
 
-              <Route
-                path="/analyze"
-                element={
-                  <ReadinessForm
-                    onSuccess={
-                      handleAnalysisComplete
-                    }
-                  />
-                }
-              />
+                <Route
+                  path="*"
+                  element={
+                    <Navigate
+                      to={
+                        analysis
+                          ? "/dashboard"
+                          : "/analyze"
+                      }
+                      replace
+                    />
+                  }
+                />
 
-              {/* ==============================
-                  PROFILE
-              ============================== */}
-
-              <Route
-                path="/profile"
-                element={<ProfilePage />}
-              />
-
-              {/* ==============================
-                  ROOT
-              ============================== */}
-
-              <Route
-                path="/"
-                element={
-                  <Navigate
-                    to={
-                      analysis
-                        ? "/dashboard"
-                        : "/analyze"
-                    }
-                    replace
-                  />
-                }
-              />
-
-              {/* ==============================
-                  FALLBACK
-              ============================== */}
-
-              <Route
-                path="*"
-                element={
-                  <Navigate
-                    to={
-                      analysis
-                        ? "/dashboard"
-                        : "/analyze"
-                    }
-                    replace
-                  />
-                }
-              />
-
-            </Routes>
-          </div>
-        </main>
-      </>
-    )}
-  </>
-);
+              </Routes>
+            </div>
+          </main>
+        </>
+      )}
+    </>
+  );
 }
+
 export default App;
