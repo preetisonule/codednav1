@@ -71,7 +71,7 @@ export default function LoginPage({
 
         {/* Headings */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">
+          <h1 className="text-3xl font-bold text-[#5865ff] md:text-4xl">
             Welcome Back
           </h1>
           <p className="mt-2 text-gray-500">
@@ -130,7 +130,7 @@ export default function LoginPage({
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-[#0B0909] px-5 py-3 font-semibold text-white transition hover:bg-[#2C2C2C] disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-[#5865ff] px-5 py-3 font-semibold text-white transition hover:bg-[#7a83e9] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Logging in..." : "Log In"}
           </button>
@@ -142,7 +142,7 @@ export default function LoginPage({
             <button
               type="button"
               onClick={onSwitchToRegister}
-              className="font-semibold text-[#9929EA] hover:text-[#CC66DA]"
+              className="font-semibold text-[#6773f9] hover:text-[#99a2fe]"
             >
               Register Now.
             </button>
